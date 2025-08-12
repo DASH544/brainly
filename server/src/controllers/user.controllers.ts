@@ -81,13 +81,17 @@ export const createContent = async (req: AuthRequest, res: Response) => {
       return errorResponse(res, 401, "Unauthorized: Missing user ID");
     }
     const { link, type, title, tags = [] } = req.body as Content;
-    const newTags = await TagModel.create({
-      title: tags,
-    });
+    const existsTag = await TagModel.find(tags);
+    if (!existsTag) {
+      const newTags = await TagModel.create({
+        title: tags,
+      });
+    }
     const newContent = await contentModel.create({
       link,
       title,
       type,
+      tags,
       userId: creatorId,
     });
     successResponse(res, newContent, "Content Add Successfully");
